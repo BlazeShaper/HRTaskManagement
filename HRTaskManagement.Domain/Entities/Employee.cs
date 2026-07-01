@@ -17,9 +17,10 @@ namespace HRTaskManagement.Domain.Entities
 		public Guid PositionId { get; set; }
 		public bool IsActive { get; set; } = true;
 		public string? ImageUrl { get; set; }
+        public ICollection<AssetAssignment> AssetAssignments { get; set; } = new List<AssetAssignment>();
 
-		// Navigation Properties (ilişkili entity'lere referans)
-		public User? User { get; set; }
+        // Navigation Properties (ilişkili entity'lere referans)
+        public User? User { get; set; }
 		public Department? Department { get; set; }
 		public Position? Position { get; set; }
 		public ICollection<TaskItem> AssignedTasks { get; set; } = new List<TaskItem>();

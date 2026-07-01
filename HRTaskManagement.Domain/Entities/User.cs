@@ -12,5 +12,7 @@ namespace HRTaskManagement.Domain.Entities
 
         public Employee? Employee { get; set; }
         public ICollection<UserRole> UserRoles { get; set; } = new List<UserRole>();
+        public ICollection<Notification> Notifications { get; set; } = new List<Notification>();
+        public ICollection<Log> Logs { get; set; } = new List<Log>();
     }
 }

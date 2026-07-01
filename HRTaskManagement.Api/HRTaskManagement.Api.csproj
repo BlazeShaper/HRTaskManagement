@@ -10,4 +10,10 @@
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.17" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\HRTaskManagement.Application\HRTaskManagement.Application.csproj" />
+    <ProjectReference Include="..\HRTaskManagement.Infrastructure\HRTaskManagement.Infrastructure.csproj" />
+    <ProjectReference Include="..\HRTaskManagement.Persistence\HRTaskManagement.Persistence.csproj" />
+  </ItemGroup>
+
 </Project>
