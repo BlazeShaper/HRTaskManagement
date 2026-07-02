@@ -24,5 +24,7 @@ namespace HRTaskManagement.Domain.Entities
 		public Department? Department { get; set; }
 		public Position? Position { get; set; }
 		public ICollection<TaskItem> AssignedTasks { get; set; } = new List<TaskItem>();
+		public ICollection<LeaveRequest> LeaveRequests { get; set; } = new List<LeaveRequest>();
+		public ICollection<TaskComment> TaskComments { get; set; } = new List<TaskComment>();
 	}
 }

@@ -1,3 +1,5 @@
+using HRTaskManagement.Domain.Common;
+
 namespace HRTaskManagement.Domain.Entities
 {
 	public class Position : BaseEntity

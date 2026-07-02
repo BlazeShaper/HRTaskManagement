@@ -1,4 +1,6 @@
 // Entities/TaskItem.cs
+using System.Collections.Generic;
+using HRTaskManagement.Domain.Common;
 using HRTaskManagement.Domain.Enums;
 
 namespace HRTaskManagement.Domain.Entities
@@ -12,5 +14,6 @@ namespace HRTaskManagement.Domain.Entities
         public DateTime? DueDate { get; set; }
 
         public Employee? Employee { get; set; }
+        public ICollection<TaskComment> Comments { get; set; } = new List<TaskComment>();
     }
 }
