@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using System.Security.Claims;
+using HRTaskManagement.Application;
 using HRTaskManagement.Persistence.Context;
 using HRTaskManagement.Application.Interfaces;
 using HRTaskManagement.Infrastructure.Services;
@@ -16,6 +17,9 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 builder.Services.AddOpenApi();
 
+// Application Services (AutoMapper vb.)
+builder.Services.AddApplicationServices();
+
 // DbContext kaydı
 builder.Services.AddDbContext<WorkSphereDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
@@ -23,6 +27,8 @@ builder.Services.AddDbContext<WorkSphereDbContext>(options =>
 builder.Services.AddScoped<IPasswordHasher, PasswordHasher>();
 builder.Services.AddScoped<IJwtService, HRTaskManagement.Infrastructure.Services.JwtService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IEmployeeService, EmployeeService>();
 
 // ============================================
 // JWT Authentication Konfigürasyonu
