@@ -3,6 +3,7 @@
   <ItemGroup>
     <ProjectReference Include="..\HRTaskManagement.Domain\HRTaskManagement.Domain.csproj" />
     <ProjectReference Include="..\HRTaskManagement.Application\HRTaskManagement.Application.csproj" />
+    <ProjectReference Include="..\HRTaskManagement.Shared\HRTaskManagement.Shared.csproj" />
   </ItemGroup>
 
   <ItemGroup>

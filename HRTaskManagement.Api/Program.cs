@@ -2,16 +2,19 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using System.Security.Claims;
 using HRTaskManagement.Persistence.Context;
 using HRTaskManagement.Application.Interfaces;
 using HRTaskManagement.Infrastructure.Services;
 using HRTaskManagement.Persistence.Services;
+using HRTaskManagement.Persistence.Seed;
+using HRTaskManagement.Shared.Constants;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
+builder.Services.AddControllers();
 builder.Services.AddOpenApi();
-
 
 // DbContext kaydı
 builder.Services.AddDbContext<WorkSphereDbContext>(options =>
@@ -47,9 +50,33 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
-builder.Services.AddAuthorization();
+builder.Services.AddAuthorization(options =>
+{
+    // Sadece Admin rolüne sahip olanlar
+    options.AddPolicy("RequireAdmin", policy =>
+        policy.RequireClaim(ClaimTypes.Role, SystemRoles.Admin));
+
+    // Admin veya Manager rolüne sahip olanlar
+    options.AddPolicy("RequireManagerOrAbove", policy =>
+        policy.RequireClaim(ClaimTypes.Role, SystemRoles.Admin, SystemRoles.Manager));
+
+    // HR rolüne sahip olanlar
+    options.AddPolicy("RequireHR", policy =>
+        policy.RequireClaim(ClaimTypes.Role, SystemRoles.HR, SystemRoles.Admin));
+
+    // Sisteme giriş yapmış herkes (rol farketmeksizin)
+    options.AddPolicy("RequireAuthenticatedUser", policy =>
+        policy.RequireAuthenticatedUser());
+});
 
 var app = builder.Build();
+
+// Seed the database
+using (var scope = app.Services.CreateScope())
+{
+    var dbContext = scope.ServiceProvider.GetRequiredService<WorkSphereDbContext>();
+    await RoleSeeder.SeedAsync(dbContext);
+}
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -64,13 +91,14 @@ app.UseHttpsRedirection();
 // ============================================
 app.UseAuthentication();   // "Bu kullanıcı kim?" — token'ı doğrular
 app.UseAuthorization();    // "Bu kullanıcı bunu yapabilir mi?" — yetki kontrolü
-builder.Services.AddControllers();
 
 var summaries = new[]
 {
     "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
 };
+
 app.MapControllers();
+
 app.MapGet("/weatherforecast", () =>
 {
     var forecast = Enumerable.Range(1, 5).Select(index =>
