@@ -9,9 +9,9 @@ namespace HRTaskManagement.Application.Interfaces
     public interface IEmployeeService
     {
         Task<IEnumerable<EmployeeDto>> GetAllAsync();
-        Task<EmployeeDto?> GetByIdAsync(Guid id);
+        Task<EmployeeDto> GetByIdAsync(Guid id);
         Task<EmployeeDto> CreateAsync(CreateEmployeeDto createEmployeeDto);
-        Task<bool> UpdateAsync(Guid id, UpdateEmployeeDto updateEmployeeDto);
-        Task<bool> DeleteAsync(Guid id);
+        Task UpdateAsync(Guid id, UpdateEmployeeDto updateEmployeeDto);
+        Task DeleteAsync(Guid id);
     }
 }

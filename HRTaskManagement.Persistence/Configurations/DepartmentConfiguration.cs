@@ -1,3 +1,4 @@
+// Persistence/Configurations/DepartmentConfiguration.cs
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using HRTaskManagement.Domain.Entities;
@@ -19,6 +20,12 @@ namespace HRTaskManagement.Persistence.Configurations
 
             builder.Property(d => d.Description)
                 .HasMaxLength(250);
+
+            // Department -> Manager (Employee) ilişkisi
+            builder.HasOne(d => d.Manager)
+                .WithMany()
+                .HasForeignKey(d => d.ManagerId)
+                .OnDelete(DeleteBehavior.Restrict);
         }
     }
 }

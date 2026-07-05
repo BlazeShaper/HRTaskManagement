@@ -9,5 +9,9 @@ namespace HRTaskManagement.Domain.Entities
 
 		// Navigation Property — Bir departmanda birden çok çalışan olur
 		public ICollection<Employee> Employees { get; set; } = new List<Employee>();
+
+		// Department Manager (Çalışanlar arasından)
+		public Guid? ManagerId { get; set; }
+		public Employee? Manager { get; set; }
 	}
 }
