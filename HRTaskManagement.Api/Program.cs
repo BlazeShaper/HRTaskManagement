@@ -11,6 +11,7 @@ using HRTaskManagement.Persistence.Services;
 using HRTaskManagement.Persistence.Seed;
 using HRTaskManagement.Shared.Constants;
 using HRTaskManagement.Api.Middleware;
+using HRTaskManagement.Api.Services;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -30,7 +31,9 @@ builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IEmployeeService, EmployeeService>();
 builder.Services.AddScoped<IDepartmentService, DepartmentService>();
-
+builder.Services.AddScoped<ITaskService, TaskService>();
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
 // ============================================
 // JWT Authentication Konfigürasyonu
 // ============================================

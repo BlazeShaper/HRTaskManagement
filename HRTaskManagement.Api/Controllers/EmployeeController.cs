@@ -21,9 +21,9 @@ namespace HRTaskManagement.Api.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetList()
+        public async Task<IActionResult> GetList([FromQuery] EmployeeQueryParameters parameters)
         {
-            var employees = await _employeeService.GetAllAsync();
+            var employees = await _employeeService.GetAllAsync(parameters);
             return Ok(employees);
         }
 

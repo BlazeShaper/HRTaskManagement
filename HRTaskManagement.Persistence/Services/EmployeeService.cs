@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using AutoMapper;
 using HRTaskManagement.Application.DTOs.Employee;
+using HRTaskManagement.Application.DTOs.Common;
 using HRTaskManagement.Application.Interfaces;
 using HRTaskManagement.Domain.Entities;
 using HRTaskManagement.Persistence.Context;
@@ -28,16 +29,63 @@ namespace HRTaskManagement.Persistence.Services
             _passwordHasher = passwordHasher;
         }
 
-        public async Task<IEnumerable<EmployeeDto>> GetAllAsync()
+        public async Task<PagedResult<EmployeeDto>> GetAllAsync(EmployeeQueryParameters parameters)
         {
-            var employees = await _context.Employees
+            // 1. Temel sorguyu IQueryable olarak başlat — henüz hiçbir şey çalışmadı
+            IQueryable<Employee> query = _context.Employees
                 .Include(e => e.Department)
                 .Include(e => e.Position)
-                .Include(e => e.User)
-                .Where(e => !e.IsDeleted)
+                .Where(e => !e.IsDeleted);
+
+            // 2. Dinamik Arama — Ad, Soyad veya Email içinde ara
+            if (!string.IsNullOrWhiteSpace(parameters.SearchTerm))
+            {
+                var search = parameters.SearchTerm.Trim().ToLower();
+                query = query.Where(e =>
+                    e.FirstName.ToLower().Contains(search) ||
+                    e.LastName.ToLower().Contains(search) ||
+                    e.Email.ToLower().Contains(search));
+            }
+
+            // 3. Departman Filtresi
+            if (parameters.DepartmentId.HasValue)
+            {
+                query = query.Where(e => e.DepartmentId == parameters.DepartmentId.Value);
+            }
+
+            // 4. Pozisyon Filtresi
+            if (parameters.PositionId.HasValue)
+            {
+                query = query.Where(e => e.PositionId == parameters.PositionId.Value);
+            }
+
+            // 5. Aktiflik Filtresi
+            if (parameters.IsActive.HasValue)
+            {
+                query = query.Where(e => e.IsActive == parameters.IsActive.Value);
+            }
+
+            // 6. Toplam kayıt sayısını AL — sayfalama öncesi, filtrelenmiş haliyle
+            int totalCount = await query.CountAsync();
+
+            // 7. Sayfalama — şimdi asıl SQL çalışıyor (OFFSET-FETCH ile)
+            var employees = await query
+                .AsNoTracking()
+                .OrderBy(e => e.FirstName)
+                .ThenBy(e => e.LastName)
+                .Skip((parameters.PageNumber - 1) * parameters.PageSize)
+                .Take(parameters.PageSize)
                 .ToListAsync();
 
-            return _mapper.Map<IEnumerable<EmployeeDto>>(employees);
+            var employeeDtos = _mapper.Map<List<EmployeeDto>>(employees);
+
+            return new PagedResult<EmployeeDto>
+            {
+                Items = employeeDtos,
+                PageNumber = parameters.PageNumber,
+                PageSize = parameters.PageSize,
+                TotalCount = totalCount
+            };
         }
 
         public async Task<EmployeeDto> GetByIdAsync(Guid id)

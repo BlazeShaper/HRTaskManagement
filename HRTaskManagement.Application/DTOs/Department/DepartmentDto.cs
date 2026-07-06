@@ -9,6 +9,7 @@ namespace HRTaskManagement.Application.DTOs.Department
         public string Name { get; set; } = string.Empty;
         public string? Description { get; set; }
         public int EmployeeCount { get; set; }
+
         public Guid? ManagerId { get; set; }
         public string? ManagerFullName { get; set; }
     }

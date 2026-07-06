@@ -1,0 +1,174 @@
+// Persistence/Services/TaskService.cs
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
+using HRTaskManagement.Application.DTOs.Task;
+using HRTaskManagement.Application.Interfaces;
+using HRTaskManagement.Persistence.Context;
+using HRTaskManagement.Shared.Constants;
+using TaskItemEntity = HRTaskManagement.Domain.Entities.TaskItem;
+
+namespace HRTaskManagement.Persistence.Services
+{
+    public class TaskService : ITaskService
+    {
+        private readonly WorkSphereDbContext _context;
+        private readonly ICurrentUserService _currentUserService;
+
+        public TaskService(WorkSphereDbContext context, ICurrentUserService currentUserService)
+        {
+            _context = context;
+            _currentUserService = currentUserService;
+        }
+
+        public async Task<IEnumerable<TaskDto>> GetAllAsync()
+        {
+            return await _context.Tasks
+                .AsNoTracking()
+                .Select(t => new TaskDto
+                {
+                    Id = t.Id,
+                    Title = t.Title,
+                    Description = t.Description,
+                    Status = t.Status.ToString(),
+                    DueDate = t.DueDate,
+                    EmployeeId = t.EmployeeId,
+                    EmployeeFullName = t.Employee != null
+                        ? t.Employee.FirstName + " " + t.Employee.LastName
+                        : string.Empty,
+                    CommentCount = t.Comments.Count()
+                })
+                .ToListAsync();
+        }
+
+        public async Task<TaskDto> GetByIdAsync(Guid id)
+        {
+            var task = await _context.Tasks
+                .AsNoTracking()
+                .Where(t => t.Id == id)
+                .Select(t => new TaskDto
+                {
+                    Id = t.Id,
+                    Title = t.Title,
+                    Description = t.Description,
+                    Status = t.Status.ToString(),
+                    DueDate = t.DueDate,
+                    EmployeeId = t.EmployeeId,
+                    EmployeeFullName = t.Employee != null
+                        ? t.Employee.FirstName + " " + t.Employee.LastName
+                        : string.Empty,
+                    CommentCount = t.Comments.Count()
+                })
+                .FirstOrDefaultAsync();
+
+            if (task == null)
+                throw new KeyNotFoundException($"{id} ID'li görev bulunamadı.");
+
+            return task;
+        }
+
+        public async Task<TaskDto> CreateAsync(CreateTaskDto request)
+        {
+            // KURAL 1: Görevi oluşturan kişi Admin veya Manager olmalı
+            bool isAuthorizedCreator = _currentUserService.IsInRole(SystemRoles.Admin)
+                || _currentUserService.IsInRole(SystemRoles.Manager);
+
+            if (!isAuthorizedCreator)
+                throw new UnauthorizedAccessException(
+                    "Görev oluşturma yetkisi sadece Admin veya Manager rolündeki kullanıcılara aittir.");
+
+            // KURAL 2: Görev atanan kişi aktif bir çalışan olmalı
+            var employee = await _context.Employees
+                .FirstOrDefaultAsync(e => e.Id == request.EmployeeId && e.IsActive);
+
+            if (employee == null)
+                throw new InvalidOperationException(
+                    "Belirtilen EmployeeId'ye sahip aktif bir çalışan bulunamadı.");
+
+            var task = new TaskItemEntity
+            {
+                Title = request.Title,
+                Description = request.Description,
+                EmployeeId = request.EmployeeId,
+                DueDate = request.DueDate,
+                Status = Domain.Enums.TaskStatus.Pending
+            };
+
+            _context.Tasks.Add(task);
+            await _context.SaveChangesAsync();
+
+            return await GetByIdAsync(task.Id);
+        }
+
+        public async Task UpdateAsync(Guid id, UpdateTaskDto request)
+        {
+            var task = await _context.Tasks.FindAsync(id);
+
+            if (task == null)
+                throw new KeyNotFoundException($"{id} ID'li görev bulunamadı.");
+
+            var employee = await _context.Employees
+                .FirstOrDefaultAsync(e => e.Id == request.EmployeeId && e.IsActive);
+
+            if (employee == null)
+                throw new InvalidOperationException(
+                    "Belirtilen EmployeeId'ye sahip aktif bir çalışan bulunamadı.");
+
+            if (!Enum.TryParse<Domain.Enums.TaskStatus>(request.Status, out var parsedStatus))
+                throw new InvalidOperationException(
+                    $"'{request.Status}' geçerli bir görev durumu değil.");
+
+            task.Title = request.Title;
+            task.Description = request.Description;
+            task.EmployeeId = request.EmployeeId;
+            task.DueDate = request.DueDate;
+            task.Status = parsedStatus;
+
+            await _context.SaveChangesAsync();
+        }
+
+        // ============================================
+        // YENİ: Sadece durum güncelleme — atanan kişi kontrolü
+        // ============================================
+        public async Task UpdateStatusAsync(Guid id, UpdateTaskStatusDto request)
+        {
+            var task = await _context.Tasks.FindAsync(id);
+
+            if (task == null)
+                throw new KeyNotFoundException($"{id} ID'li görev bulunamadı.");
+
+            if (!Enum.TryParse<Domain.Enums.TaskStatus>(request.Status, out var parsedStatus))
+                throw new InvalidOperationException(
+                    $"'{request.Status}' geçerli bir görev durumu değil.");
+
+            // KURAL: Sadece görevin atandığı kişi durumu güncelleyebilir
+            var currentUserId = _currentUserService.UserId;
+
+            if (currentUserId == null)
+                throw new UnauthorizedAccessException("Kimlik doğrulanamadı.");
+
+            var currentEmployee = await _context.Employees
+                .FirstOrDefaultAsync(e => e.UserId == currentUserId.Value);
+
+            if (currentEmployee == null || currentEmployee.Id != task.EmployeeId)
+                throw new UnauthorizedAccessException(
+                    "Sadece görevin atandığı kişi durumu güncelleyebilir.");
+
+            task.Status = parsedStatus;
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task DeleteAsync(Guid id)
+        {
+            var task = await _context.Tasks.FindAsync(id);
+
+            if (task == null)
+                throw new KeyNotFoundException($"{id} ID'li görev bulunamadı.");
+
+            _context.Tasks.Remove(task);
+            await _context.SaveChangesAsync();
+        }
+    }
+}
