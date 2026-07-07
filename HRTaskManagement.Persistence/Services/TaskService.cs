@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using HRTaskManagement.Application.DTOs.Common;
 using HRTaskManagement.Application.DTOs.Task;
 using HRTaskManagement.Application.Interfaces;
 using HRTaskManagement.Persistence.Context;
@@ -23,10 +24,38 @@ namespace HRTaskManagement.Persistence.Services
             _currentUserService = currentUserService;
         }
 
-        public async Task<IEnumerable<TaskDto>> GetAllAsync()
+        public async Task<PagedResult<TaskDto>> GetAllAsync(TaskQueryParameters queryParameters)
         {
-            return await _context.Tasks
-                .AsNoTracking()
+            IQueryable<TaskItemEntity> query = _context.Tasks
+                .AsNoTracking();
+
+            // Arama — Başlık veya açıklama içinde ara
+            if (!string.IsNullOrWhiteSpace(queryParameters.SearchTerm))
+            {
+                var search = queryParameters.SearchTerm.Trim().ToLower();
+                query = query.Where(t => t.Title.ToLower().Contains(search) ||
+                                         (t.Description != null && t.Description.ToLower().Contains(search)));
+            }
+
+            // Filtre — Duruma göre filtrele
+            if (!string.IsNullOrWhiteSpace(queryParameters.Status) &&
+                Enum.TryParse<Domain.Enums.TaskStatus>(queryParameters.Status, true, out var statusFilter))
+            {
+                query = query.Where(t => t.Status == statusFilter);
+            }
+
+            // Filtre — Atanan çalışana göre filtrele
+            if (queryParameters.EmployeeId.HasValue)
+            {
+                query = query.Where(t => t.EmployeeId == queryParameters.EmployeeId.Value);
+            }
+
+            int totalCount = await query.CountAsync();
+
+            var tasks = await query
+                .OrderByDescending(t => t.CreatedDate)
+                .Skip((queryParameters.PageNumber - 1) * queryParameters.PageSize)
+                .Take(queryParameters.PageSize)
                 .Select(t => new TaskDto
                 {
                     Id = t.Id,
@@ -41,6 +70,14 @@ namespace HRTaskManagement.Persistence.Services
                     CommentCount = t.Comments.Count()
                 })
                 .ToListAsync();
+
+            return new PagedResult<TaskDto>
+            {
+                Items = tasks,
+                PageNumber = queryParameters.PageNumber,
+                PageSize = queryParameters.PageSize,
+                TotalCount = totalCount
+            };
         }
 
         public async Task<TaskDto> GetByIdAsync(Guid id)

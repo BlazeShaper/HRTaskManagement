@@ -31,6 +31,14 @@ namespace HRTaskManagement.Api.Services
             }
         }
 
+        public string? IpAddress
+        {
+            get
+            {
+                return _httpContextAccessor.HttpContext?.Connection?.RemoteIpAddress?.ToString();
+            }
+        }
+
         public IReadOnlyList<string> Roles
         {
             get

@@ -18,15 +18,18 @@ namespace HRTaskManagement.Persistence.Services
         private readonly WorkSphereDbContext _context;
         private readonly IMapper _mapper;
         private readonly IPasswordHasher _passwordHasher;
+        private readonly IPasswordGenerator _passwordGenerator;
 
         public EmployeeService(
             WorkSphereDbContext context,
             IMapper mapper,
-            IPasswordHasher passwordHasher)
+            IPasswordHasher passwordHasher,
+            IPasswordGenerator passwordGenerator)
         {
             _context = context;
             _mapper = mapper;
             _passwordHasher = passwordHasher;
+            _passwordGenerator = passwordGenerator;
         }
 
         public async Task<PagedResult<EmployeeDto>> GetAllAsync(EmployeeQueryParameters parameters)
@@ -102,7 +105,7 @@ namespace HRTaskManagement.Persistence.Services
             return _mapper.Map<EmployeeDto>(employee);
         }
 
-        public async Task<EmployeeDto> CreateAsync(CreateEmployeeDto createEmployeeDto)
+        public async Task<CreateEmployeeResultDto> CreateAsync(CreateEmployeeDto createEmployeeDto)
         {
             var department = await _context.Departments.FindAsync(createEmployeeDto.DepartmentId);
             if (department == null)
@@ -123,11 +126,12 @@ namespace HRTaskManagement.Persistence.Services
             {
                 username = $"{baseUsername}{counter++}";
             }
-
+            var temporaryPassword = _passwordGenerator.Generate();
             var user = new User
             {
                 Username = username,
-                PasswordHash = _passwordHasher.HashPassword("Employee123!"),
+                PasswordHash = _passwordHasher.HashPassword(temporaryPassword),
+                MustChangePassword = true,
                 IsActive = true
             };
             _context.Users.Add(user);
@@ -150,7 +154,13 @@ namespace HRTaskManagement.Persistence.Services
             _context.Employees.Add(employee);
             await _context.SaveChangesAsync();
 
-            return _mapper.Map<EmployeeDto>(employee);
+            var employeeDto = _mapper.Map<EmployeeDto>(employee);
+
+            return new CreateEmployeeResultDto
+            {
+                Employee = employeeDto,
+                TemporaryPassword = temporaryPassword
+            };
         }
 
         public async Task UpdateAsync(Guid id, UpdateEmployeeDto updateEmployeeDto)

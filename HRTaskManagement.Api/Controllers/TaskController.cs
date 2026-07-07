@@ -21,9 +21,9 @@ namespace HRTaskManagement.Api.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetAll()
+        public async Task<IActionResult> GetAll([FromQuery] TaskQueryParameters queryParameters)
         {
-            var tasks = await _taskService.GetAllAsync();
+            var tasks = await _taskService.GetAllAsync(queryParameters);
             return Ok(tasks);
         }
 
@@ -55,6 +55,13 @@ namespace HRTaskManagement.Api.Controllers
         public async Task<IActionResult> Delete(Guid id)
         {
             await _taskService.DeleteAsync(id);
+            return NoContent();
+        }
+
+        [HttpPatch("{id:guid}/status")]
+        public async Task<IActionResult> UpdateStatus(Guid id, [FromBody] UpdateTaskStatusDto request)
+        {
+            await _taskService.UpdateStatusAsync(id, request);
             return NoContent();
         }
     }

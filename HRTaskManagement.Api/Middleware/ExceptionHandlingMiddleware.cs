@@ -47,8 +47,9 @@ namespace HRTaskManagement.Api.Middleware
                     statusCode = HttpStatusCode.BadRequest;
                     response.Message = "Doğrulama hatası oluştu.";
                     response.Errors = validationEx.Errors
-                        .Select(e => e.ErrorMessage)
-                        .ToList();
+                    .Select(e => $"{e.PropertyName}: {e.ErrorMessage}")
+                    .ToList();
+
                     break;
 
                 case KeyNotFoundException:

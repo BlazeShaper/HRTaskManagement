@@ -8,5 +8,8 @@ namespace HRTaskManagement.Application.Interfaces
     {
         Task<LoginResponseDto?> LoginAsync(LoginRequestDto request);
         Task<RegisterResponseDto> RegisterAsync(RegisterRequestDto request);
+        Task<LoginResponseDto> RefreshTokenAsync(string refreshToken);
+        Task RevokeTokenAsync(string refreshToken);
+        Task ChangePasswordAsync(Guid userId, ChangePasswordDto dto);
     }
 }

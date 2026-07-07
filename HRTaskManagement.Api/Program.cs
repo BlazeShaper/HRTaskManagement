@@ -12,10 +12,12 @@ using HRTaskManagement.Persistence.Seed;
 using HRTaskManagement.Shared.Constants;
 using HRTaskManagement.Api.Middleware;
 using HRTaskManagement.Api.Services;
+using FluentValidation;
+using HRTaskManagement.Application.Validators.Employee;
+using HRTaskManagement.Api.Filters;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-builder.Services.AddControllers();
 builder.Services.AddOpenApi();
 
 // Application Services (AutoMapper vb.)
@@ -25,15 +27,30 @@ builder.Services.AddApplicationServices();
 builder.Services.AddDbContext<WorkSphereDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
+// Infrastructure & Persistence Services
 builder.Services.AddScoped<IPasswordHasher, PasswordHasher>();
+builder.Services.AddScoped<IPasswordGenerator, PasswordGenerator>();
 builder.Services.AddScoped<IJwtService, HRTaskManagement.Infrastructure.Services.JwtService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IEmployeeService, EmployeeService>();
 builder.Services.AddScoped<IDepartmentService, DepartmentService>();
+builder.Services.AddScoped<IPositionService, PositionService>();
 builder.Services.AddScoped<ITaskService, TaskService>();
+builder.Services.AddScoped<IAssetService, AssetService>();
+builder.Services.AddScoped<IAssetAssignmentService, AssetAssignmentService>();
+builder.Services.AddScoped<ITaskCommentService, TaskCommentService>();
+builder.Services.AddScoped<ILeaveRequestService, LeaveRequestService>();
+builder.Services.AddScoped<INotificationService, NotificationService>();
+builder.Services.AddScoped<ILogService, LogService>();
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
+builder.Services.AddValidatorsFromAssemblyContaining<CreateEmployeeDtoValidator>();
+builder.Services.AddControllers(options =>
+{
+    options.Filters.Add<ValidationFilter>();
+    options.Filters.Add<PasswordChangeEnforcementFilter>();
+});
 // ============================================
 // JWT Authentication Konfigürasyonu
 // ============================================

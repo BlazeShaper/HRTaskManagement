@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using HRTaskManagement.Application.DTOs.Common;
 using HRTaskManagement.Application.DTOs.Department;
 using HRTaskManagement.Application.Interfaces;
 using HRTaskManagement.Domain.Entities;
@@ -44,10 +45,31 @@ namespace HRTaskManagement.Persistence.Services
 			return department;
 		}
 
-		public async Task<IEnumerable<DepartmentDto>> GetAllAsync()
+		public async Task<PagedResult<DepartmentDto>> GetAllAsync(DepartmentQueryParameters queryParameters)
 		{
-			return await _context.Departments
-				.AsNoTracking()
+			IQueryable<Department> query = _context.Departments
+				.AsNoTracking();
+
+			// Arama — Adı veya açıklaması içinde ara
+			if (!string.IsNullOrWhiteSpace(queryParameters.SearchTerm))
+			{
+				var search = queryParameters.SearchTerm.Trim().ToLower();
+				query = query.Where(d => d.Name.ToLower().Contains(search) || 
+				                         (d.Description != null && d.Description.ToLower().Contains(search)));
+			}
+
+			// Filtre — Yönetici Id'sine göre filtreleme
+			if (queryParameters.ManagerId.HasValue)
+			{
+				query = query.Where(d => d.ManagerId == queryParameters.ManagerId.Value);
+			}
+
+			int totalCount = await query.CountAsync();
+
+			var departments = await query
+				.OrderBy(d => d.Name)
+				.Skip((queryParameters.PageNumber - 1) * queryParameters.PageSize)
+				.Take(queryParameters.PageSize)
 				.Select(d => new DepartmentDto
 				{
 					Id = d.Id,
@@ -60,6 +82,14 @@ namespace HRTaskManagement.Persistence.Services
 						: null
 				})
 				.ToListAsync();
+
+			return new PagedResult<DepartmentDto>
+			{
+				Items = departments,
+				PageNumber = queryParameters.PageNumber,
+				PageSize = queryParameters.PageSize,
+				TotalCount = totalCount
+			};
 		}
 
 		public async Task<DepartmentDto> CreateAsync(CreateDepartmentDto request)

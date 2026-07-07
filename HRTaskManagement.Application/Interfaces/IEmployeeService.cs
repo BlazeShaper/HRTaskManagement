@@ -11,7 +11,7 @@ namespace HRTaskManagement.Application.Interfaces
     {
         Task<PagedResult<EmployeeDto>> GetAllAsync(EmployeeQueryParameters parameters);
         Task<EmployeeDto> GetByIdAsync(Guid id);
-        Task<EmployeeDto> CreateAsync(CreateEmployeeDto createEmployeeDto);
+        Task<CreateEmployeeResultDto> CreateAsync(CreateEmployeeDto createEmployeeDto);
         Task UpdateAsync(Guid id, UpdateEmployeeDto updateEmployeeDto);
         Task DeleteAsync(Guid id);
     }

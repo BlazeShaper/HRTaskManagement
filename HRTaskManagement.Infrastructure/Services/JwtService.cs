@@ -12,6 +12,7 @@ using HRTaskManagement.Domain.Entities;
 
 namespace HRTaskManagement.Infrastructure.Services
 {
+
     public class JwtService : IJwtService
     {
         private readonly IConfiguration _configuration;
@@ -28,12 +29,12 @@ namespace HRTaskManagement.Infrastructure.Services
             var issuer = jwtSettings["Issuer"];
             var audience = jwtSettings["Audience"];
             var expirationMinutes = int.Parse(jwtSettings["AccessTokenExpirationMinutes"]!);
-
             var claims = new List<Claim>
             {
                 new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
                 new Claim(JwtRegisteredClaimNames.UniqueName, user.Username),
-                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
+                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+                new Claim("MustChangePassword", user.MustChangePassword.ToString().ToLowerInvariant())
             };
 
             // Kullanıcının rollerini de token'a ekleyelim

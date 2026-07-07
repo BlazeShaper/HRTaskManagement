@@ -20,9 +20,9 @@ namespace HRTaskManagement.Api.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetAll()
+        public async Task<IActionResult> GetAll([FromQuery] DepartmentQueryParameters queryParameters)
         {
-            var departments = await _departmentService.GetAllAsync();
+            var departments = await _departmentService.GetAllAsync(queryParameters);
             return Ok(departments);
         }
 

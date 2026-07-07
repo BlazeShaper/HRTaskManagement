@@ -38,8 +38,8 @@ namespace HRTaskManagement.Api.Controllers
         [Authorize(Policy = "RequireManagerOrAbove")]
         public async Task<IActionResult> Create([FromBody] CreateEmployeeDto createEmployeeDto)
         {
-            var createdEmployee = await _employeeService.CreateAsync(createEmployeeDto);
-            return CreatedAtAction(nameof(GetById), new { id = createdEmployee.Id }, createdEmployee);
+            var result = await _employeeService.CreateAsync(createEmployeeDto);
+            return CreatedAtAction(nameof(GetById), new { id = result.Employee.Id }, result);
         }
 
         [HttpPut("{id:guid}")]
