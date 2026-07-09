@@ -1,7 +1,11 @@
 import { useState } from 'react'
 import { Bell, ChevronDown, LogOut, User } from 'lucide-react'
+import { useAppSelector, useAppDispatch } from '../../store/hooks'
+import { logout } from '../../store/slices/authSlice'
 
 export default function Navbar() {
+    const user = useAppSelector((state) => state.auth.user)
+    const dispatch = useAppDispatch()
     // useState: React'te "değişebilen veri" (state) tutmanın yolu.
     // isProfileOpen: dropdown açık mı kapalı mı bilgisini tutuyor.
     // setIsProfileOpen: bu değeri değiştirmek için kullandığımız fonksiyon.
@@ -30,7 +34,7 @@ export default function Navbar() {
                         <div className="flex h-8 w-8 items-center justify-center rounded-full bg-slate-700">
                             <User size={16} />
                         </div>
-                        <span className="font-medium">Ad Soyad</span>
+                        <span className="font-medium">{user?.username ?? 'Misafir'}</span>
                         <ChevronDown size={16} />
                     </button>
 
@@ -41,7 +45,10 @@ export default function Navbar() {
                                 <User size={16} />
                                 Profilim
                             </button>
-                            <button className="flex w-full items-center gap-2 px-4 py-2 text-sm text-red-400 hover:bg-slate-800">
+                            <button
+                                onClick={() => dispatch(logout())}
+                                className="flex w-full items-center gap-2 px-4 py-2 text-sm text-red-400 hover:bg-slate-800"
+                            >
                                 <LogOut size={16} />
                                 Çıkış Yap
                             </button>

@@ -51,6 +51,18 @@ builder.Services.AddControllers(options =>
     options.Filters.Add<ValidationFilter>();
     options.Filters.Add<PasswordChangeEnforcementFilter>();
 });
+
+// CORS Konfigürasyonu
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowFrontend", policy =>
+    {
+        policy.WithOrigins("http://localhost:5173")
+              .AllowAnyHeader()
+              .AllowAnyMethod()
+              .AllowCredentials();
+    });
+});
 // ============================================
 // JWT Authentication Konfigürasyonu
 // ============================================
@@ -113,6 +125,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseMiddleware<ExceptionHandlingMiddleware>();
+app.UseCors("AllowFrontend");
 app.UseHttpsRedirection();
 
 // ============================================
