@@ -21,3 +21,17 @@ export interface DecodedToken {
     role: string | string[]
     exp: number
 }
+
+export interface RegisterRequest {
+    username: string
+    email: string
+    password: string
+    role: string
+}
+
+export interface RegisterResponse {
+    userId: string
+    username: string
+    email: string
+    assignedRole: string
+}

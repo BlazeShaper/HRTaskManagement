@@ -1,6 +1,6 @@
 // src/pages/Login.tsx
 import { useState, type FormEvent } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, Link } from 'react-router-dom'
 import { useAppDispatch, useAppSelector } from '../store/hooks'
 import { loginUser } from '../store/slices/authSlice'
 
@@ -80,6 +80,13 @@ export default function Login() {
                     >
                         {isLoading ? 'Giriş yapılıyor...' : 'Giriş Yap'}
                     </button>
+
+                    <p className="mt-4 text-center text-sm text-slate-500">
+                        Hesabınız yok mu?{' '}
+                        <Link to="/register" className="text-white underline underline-offset-2 hover:text-slate-300">
+                            Kayıt Ol
+                        </Link>
+                    </p>
                 </form>
             </div>
         </div>

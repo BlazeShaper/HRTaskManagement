@@ -63,6 +63,9 @@ builder.Services.AddCors(options =>
               .AllowCredentials();
     });
 });
+// Api/Program.cs
+options.AddPolicy("AdminOrHR", policy =>
+    policy.RequireRole(SystemRoles.Admin, SystemRoles.HR));
 // ============================================
 // JWT Authentication Konfigürasyonu
 // ============================================

@@ -57,5 +57,21 @@ namespace HRTaskManagement.Api.Controllers
             await _employeeService.DeleteAsync(id);
             return NoContent();
         }
+
+        [HttpPost]
+        [Authorize(Policy = "AdminOrHR")]
+        public async Task<IActionResult> Create([FromBody] CreateEmployeeDto dto)
+        {
+            var result = await _employeeService.CreateAsync(dto);
+            return CreatedAtAction(nameof(GetById), new { id = result.Employee.Id }, result);
+        }
+
+        [HttpDelete("{id:guid}")]
+        [Authorize(Policy = "AdminOrHR")]
+        public async Task<IActionResult> Delete(Guid id)
+        {
+            await _employeeService.DeleteAsync(id);
+            return NoContent();
+        }
     }
 }
