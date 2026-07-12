@@ -15,6 +15,7 @@ using HRTaskManagement.Api.Services;
 using FluentValidation;
 using HRTaskManagement.Application.Validators.Employee;
 using HRTaskManagement.Api.Filters;
+using HRTaskManagement.Domain.Entities;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -182,7 +183,7 @@ using (var scope = app.Services.CreateScope())
     // Fix existing employees' positions to match their primary user roles
     var employeesWithWrongPositions = await dbContext.Employees
         .Include(e => e.User)
-            .ThenInclude(u => u.UserRoles)
+            .ThenInclude(u => u!.UserRoles)
                 .ThenInclude(ur => ur.Role)
         .Include(e => e.Position)
         .Where(e => !e.IsDeleted && e.User != null)
@@ -191,18 +192,18 @@ using (var scope = app.Services.CreateScope())
     bool needsSave = false;
     foreach (var emp in employeesWithWrongPositions)
     {
-        var primaryRole = emp.User.UserRoles.FirstOrDefault()?.Role?.Name;
-        if (primaryRole == "Manager" && emp.Position.Title != "Yönetici")
+        var primaryRole = emp.User?.UserRoles?.FirstOrDefault()?.Role?.Name;
+        if (primaryRole == "Manager" && emp.Position?.Title != "Yönetici")
         {
             emp.PositionId = managerPos.Id;
             needsSave = true;
         }
-        else if (primaryRole == "Admin" && emp.Position.Title != "Admin")
+        else if (primaryRole == "Admin" && emp.Position?.Title != "Admin")
         {
             emp.PositionId = adminPos.Id;
             needsSave = true;
         }
-        else if (primaryRole == "HR" && emp.Position.Title != "İnsan Kaynakları")
+        else if (primaryRole == "HR" && emp.Position?.Title != "İnsan Kaynakları")
         {
             emp.PositionId = hrPos.Id;
             needsSave = true;

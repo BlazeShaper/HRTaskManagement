@@ -8,6 +8,8 @@ import leaveRequestReducer from './slices/leaveRequestSlice'
 import assetReducer from './slices/assetSlice'
 import assetAssignmentReducer from './slices/assetAssignmentSlice'
 import notificationReducer from './slices/notificationSlice'
+import departmentReducer from './slices/departmentSlice'
+import positionReducer from './slices/positionSlice'
 
 export const store = configureStore({
     reducer: {
@@ -19,6 +21,8 @@ export const store = configureStore({
         asset: assetReducer,
         assetAssignment: assetAssignmentReducer,
         notification: notificationReducer,
+        department: departmentReducer,
+        position: positionReducer,
     },
 })
 

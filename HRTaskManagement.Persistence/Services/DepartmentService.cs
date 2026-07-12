@@ -31,7 +31,7 @@ namespace HRTaskManagement.Persistence.Services
 					Id = d.Id,
 					Name = d.Name,
 					Description = d.Description,
-					EmployeeCount = d.Employees.Count(),
+					EmployeeCount = d.Employees.Count(e => !e.IsDeleted),
 					ManagerId = d.ManagerId,
 					ManagerFullName = d.Manager != null
 						? d.Manager.FirstName + " " + d.Manager.LastName
@@ -75,7 +75,7 @@ namespace HRTaskManagement.Persistence.Services
 					Id = d.Id,
 					Name = d.Name,
 					Description = d.Description,
-					EmployeeCount = d.Employees.Count(),
+					EmployeeCount = d.Employees.Count(e => !e.IsDeleted),
 					ManagerId = d.ManagerId,
 					ManagerFullName = d.Manager != null
 						? d.Manager.FirstName + " " + d.Manager.LastName
@@ -187,7 +187,7 @@ namespace HRTaskManagement.Persistence.Services
 				Id = department.Id,
 				Name = department.Name,
 				Description = department.Description,
-				EmployeeCount = department.Employees.Count,
+				EmployeeCount = department.Employees.Count(e => !e.IsDeleted),
 				ManagerId = department.ManagerId,
 				ManagerFullName = department.Manager != null
 					? $"{department.Manager.FirstName} {department.Manager.LastName}"

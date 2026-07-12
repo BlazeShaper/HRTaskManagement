@@ -9,6 +9,9 @@ namespace HRTaskManagement.Domain.Enums
         LeaveRejected,      // İzin reddedildi
         CommentAdded,       // Yorum eklendi
         AssetAssigned,      // Varlık atandı
-        General              // Genel bildirim
+        General,             // Genel bildirim
+        LeaveRequestApproved,
+        LeaveRequestRejected,
+        LeaveRequestSubmitted
     }
 }

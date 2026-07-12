@@ -5,20 +5,29 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using HRTaskManagement.Application.DTOs.Common;
 using HRTaskManagement.Application.DTOs.LeaveRequest;
+using HRTaskManagement.Application.DTOs.Notification;
 using HRTaskManagement.Application.Interfaces;
 using HRTaskManagement.Domain.Entities;
 using HRTaskManagement.Domain.Enums;
 using HRTaskManagement.Persistence.Context;
+using HRTaskManagement.Shared.Constants;
 
 namespace HRTaskManagement.Persistence.Services
 {
     public class LeaveRequestService : ILeaveRequestService
     {
         private readonly WorkSphereDbContext _dbContext;
+        private readonly ICurrentUserService _currentUserService;
+        private readonly INotificationService _notificationService;
 
-        public LeaveRequestService(WorkSphereDbContext dbContext)
+        public LeaveRequestService(
+            WorkSphereDbContext dbContext,
+            ICurrentUserService currentUserService,
+            INotificationService notificationService)
         {
             _dbContext = dbContext;
+            _currentUserService = currentUserService;
+            _notificationService = notificationService;
         }
 
         private static IQueryable<LeaveRequestDto> ProjectToDto(
@@ -120,6 +129,9 @@ namespace HRTaskManagement.Persistence.Services
             _dbContext.LeaveRequests.Add(leaveRequest);
             await _dbContext.SaveChangesAsync();
 
+            // Yöneticilere/Admin'lere bildirim gönder
+            await NotifyManagersAboutNewLeaveRequest(leaveRequest, employee);
+
             return await GetByIdAsync(leaveRequest.Id);
         }
 
@@ -138,6 +150,10 @@ namespace HRTaskManagement.Persistence.Services
             leaveRequest.UpdatedDate = DateTime.UtcNow;
 
             await _dbContext.SaveChangesAsync();
+
+            // Onay bildirimi gönder
+            await SendLeaveStatusNotification(leaveRequest);
+
             return await GetByIdAsync(id);
         }
 
@@ -156,6 +172,10 @@ namespace HRTaskManagement.Persistence.Services
             leaveRequest.UpdatedDate = DateTime.UtcNow;
 
             await _dbContext.SaveChangesAsync();
+
+            // Red bildirimi gönder
+            await SendLeaveStatusNotification(leaveRequest);
+
             return await GetByIdAsync(id);
         }
 
@@ -182,6 +202,65 @@ namespace HRTaskManagement.Persistence.Services
 
             await _dbContext.SaveChangesAsync();
             return await GetByIdAsync(id);
+        }
+
+        // ============================================
+        // PRIVATE HELPERS — Bildirim metodları
+        // ============================================
+
+        private async Task SendLeaveStatusNotification(LeaveRequest leaveRequest)
+        {
+            var employee = await _dbContext.Employees
+                .FirstOrDefaultAsync(e => e.Id == leaveRequest.EmployeeId && !e.IsDeleted);
+
+            if (employee?.UserId is Guid employeeUserId)
+            {
+                if (leaveRequest.Status == LeaveStatus.Approved)
+                {
+                    await _notificationService.CreateAsync(new CreateNotificationDto
+                    {
+                        UserId = employeeUserId,
+                        Title = "İzin Talebiniz Onaylandı",
+                        Message = $"{leaveRequest.StartDate:dd.MM.yyyy} - {leaveRequest.EndDate:dd.MM.yyyy} tarihleri arasındaki izin talebiniz onaylandı.",
+                        Type = NotificationType.LeaveRequestApproved.ToString()
+                    });
+                }
+                else if (leaveRequest.Status == LeaveStatus.Rejected)
+                {
+                    await _notificationService.CreateAsync(new CreateNotificationDto
+                    {
+                        UserId = employeeUserId,
+                        Title = "İzin Talebiniz Reddedildi",
+                        Message = $"{leaveRequest.StartDate:dd.MM.yyyy} - {leaveRequest.EndDate:dd.MM.yyyy} tarihleri arasındaki izin talebiniz reddedildi.",
+                        Type = NotificationType.LeaveRequestRejected.ToString()
+                    });
+                }
+            }
+        }
+
+        private async Task NotifyManagersAboutNewLeaveRequest(LeaveRequest leaveRequest, Employee employee)
+        {
+            // Admin ve Manager rolündeki tüm kullanıcılara bildirim gönder
+            var managerUserIds = await _dbContext.Users
+                .Where(u => !u.IsDeleted && u.IsActive)
+                .Join(_dbContext.UserRoles.Where(ur =>
+                    ur.Role!.Name == SystemRoles.Admin || ur.Role!.Name == SystemRoles.Manager),
+                    user => user.Id,
+                    userRole => userRole.UserId,
+                    (user, userRole) => user.Id)
+                .Distinct()
+                .ToListAsync();
+
+            foreach (var managerUserId in managerUserIds)
+            {
+                await _notificationService.CreateAsync(new CreateNotificationDto
+                {
+                    UserId = managerUserId,
+                    Title = "Yeni İzin Talebi",
+                    Message = $"{employee.FirstName} {employee.LastName} tarafından {leaveRequest.StartDate:dd.MM.yyyy} - {leaveRequest.EndDate:dd.MM.yyyy} tarihleri için yeni bir izin talebi oluşturuldu.",
+                    Type = NotificationType.LeaveRequestSubmitted.ToString()
+                });
+            }
         }
     }
 }

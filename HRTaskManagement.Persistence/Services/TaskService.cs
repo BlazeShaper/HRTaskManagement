@@ -6,7 +6,9 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using HRTaskManagement.Application.DTOs.Common;
 using HRTaskManagement.Application.DTOs.Task;
+using HRTaskManagement.Application.DTOs.Notification;
 using HRTaskManagement.Application.Interfaces;
+using HRTaskManagement.Domain.Enums;
 using HRTaskManagement.Persistence.Context;
 using HRTaskManagement.Shared.Constants;
 using TaskItemEntity = HRTaskManagement.Domain.Entities.TaskItem;
@@ -17,11 +19,16 @@ namespace HRTaskManagement.Persistence.Services
     {
         private readonly WorkSphereDbContext _context;
         private readonly ICurrentUserService _currentUserService;
+        private readonly INotificationService _notificationService;
 
-        public TaskService(WorkSphereDbContext context, ICurrentUserService currentUserService)
+        public TaskService(
+            WorkSphereDbContext context,
+            ICurrentUserService currentUserService,
+            INotificationService notificationService)
         {
             _context = context;
             _currentUserService = currentUserService;
+            _notificationService = notificationService;
         }
 
         public async Task<PagedResult<TaskDto>> GetAllAsync(TaskQueryParameters queryParameters)
@@ -135,6 +142,20 @@ namespace HRTaskManagement.Persistence.Services
 
             _context.Tasks.Add(task);
             await _context.SaveChangesAsync();
+
+            var assignedEmployee = await _context.Employees
+                .FirstOrDefaultAsync(e => e.Id == task.EmployeeId && !e.IsDeleted);
+
+            if (assignedEmployee?.UserId is Guid assignedUserId)
+            {
+                await _notificationService.CreateAsync(new CreateNotificationDto
+                {
+                    UserId = assignedUserId,
+                    Title = "Yeni Görev Atandı",
+                    Message = $"\"{task.Title}\" başlıklı yeni bir görev size atandı.",
+                    Type = "TaskAssigned"
+                });
+            }
 
             return await GetByIdAsync(task.Id);
         }

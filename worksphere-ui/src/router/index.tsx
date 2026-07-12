@@ -13,6 +13,8 @@ import ProtectedRoute from '../components/routing/ProtectedRoute'
 import LeaveRequestCreate from '../pages/LeaveRequestCreate'
 import LeaveRequests from '../pages/LeaveRequests'
 import AssetList from '../pages/AssetList'
+import DepartmentList from '../pages/DepartmentList'
+import PositionList from '../pages/PositionList'
 
 export default function AppRouter() {
     return (
@@ -58,6 +60,8 @@ export default function AppRouter() {
                 />
                 <Route path="tasks" element={<TaskList />} />
                 <Route path="assets" element={<AssetList />} />
+                <Route path="departments" element={<DepartmentList />} />
+                <Route path="positions" element={<PositionList />} />
             </Route>
 
             <Route path="*" element={<NotFound />} />
