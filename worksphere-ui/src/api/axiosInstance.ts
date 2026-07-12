@@ -69,9 +69,12 @@ axiosInstance.interceptors.response.use(
             _isRefreshing = true
 
             try {
-                // Import dynamically to avoid circular dependency
-                const { refreshTokenRequest } = await import('./authApi')
-                const data = await refreshTokenRequest()
+                const response = await axios.post<{ accessToken: string }>(
+                    `${import.meta.env.VITE_API_BASE_URL}/auth/refresh`,
+                    {},
+                    { withCredentials: true }
+                )
+                const data = response.data
 
                 localStorage.setItem('accessToken', data.accessToken)
                 originalRequest.headers.Authorization = `Bearer ${data.accessToken}`

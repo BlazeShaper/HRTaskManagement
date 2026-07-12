@@ -5,6 +5,9 @@ import authReducer from './slices/authSlice'
 import employeeReducer from './slices/employeeSlice'
 import taskReducer from './slices/taskSlice'
 import leaveRequestReducer from './slices/leaveRequestSlice'
+import assetReducer from './slices/assetSlice'
+import assetAssignmentReducer from './slices/assetAssignmentSlice'
+import notificationReducer from './slices/notificationSlice'
 
 export const store = configureStore({
     reducer: {
@@ -13,6 +16,9 @@ export const store = configureStore({
         employee: employeeReducer,
         task: taskReducer,
         leaveRequest: leaveRequestReducer,
+        asset: assetReducer,
+        assetAssignment: assetAssignmentReducer,
+        notification: notificationReducer,
     },
 })
 

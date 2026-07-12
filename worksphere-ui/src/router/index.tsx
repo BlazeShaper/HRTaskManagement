@@ -20,7 +20,6 @@ export default function AppRouter() {
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
             <Route path="/access-denied" element={<AccessDenied />} />
-            <Route path="assets" element={<AssetList />} />
 
             <Route
                 path="/dashboard"
@@ -58,6 +57,7 @@ export default function AppRouter() {
                     }
                 />
                 <Route path="tasks" element={<TaskList />} />
+                <Route path="assets" element={<AssetList />} />
             </Route>
 
             <Route path="*" element={<NotFound />} />

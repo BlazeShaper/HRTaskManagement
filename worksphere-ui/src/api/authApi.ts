@@ -11,12 +11,6 @@ export const registerRequest = async (data: RegisterRequest): Promise<RegisterRe
     const response = await axiosInstance.post<RegisterResponse>('/auth/register', data)
     return response.data
 }
-
-export const refreshTokenRequest = async (): Promise<LoginResponse> => {
-    const response = await axiosInstance.post<LoginResponse>('/auth/refresh')
-    return response.data
-}
-
 export const logoutRequest = async (): Promise<void> => {
     await axiosInstance.post('/auth/logout')
 }

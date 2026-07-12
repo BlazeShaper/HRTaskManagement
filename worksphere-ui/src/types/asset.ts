@@ -10,6 +10,13 @@ export interface AssetDto {
   status: AssetStatus
 }
 
+export interface CreateAssetDto {
+  name: string
+  assetType: string
+  serialNumber: string
+  purchaseDate: string
+}
+
 export interface AssetQueryParameters {
   searchTerm?: string
   assetType?: string
