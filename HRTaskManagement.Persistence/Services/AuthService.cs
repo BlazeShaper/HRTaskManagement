@@ -189,13 +189,13 @@ namespace HRTaskManagement.Persistence.Services
         public async Task<RegisterResponseDto> RegisterAsync(RegisterRequestDto request)
         {
             // 1. Kullanıcı adı kontrolü
-            if (await _context.Users.AnyAsync(u => u.Username == request.Username))
+            if (await _context.Users.AnyAsync(u => u.Username == request.Username && !u.IsDeleted))
             {
                 throw new InvalidOperationException("Kullanıcı adı zaten kullanımda.");
             }
 
             // 2. E-posta kontrolü
-            if (await _context.Employees.AnyAsync(e => e.Email == request.Email))
+            if (await _context.Employees.AnyAsync(e => e.Email == request.Email && !e.IsDeleted))
             {
                 throw new InvalidOperationException("E-posta adresi zaten kullanımda.");
             }
@@ -215,10 +215,18 @@ namespace HRTaskManagement.Persistence.Services
                 _context.Departments.Add(department);
             }
 
-            var position = await _context.Positions.FirstOrDefaultAsync();
+            string positionTitle = request.Role switch
+            {
+                "Admin" => "Admin",
+                "Manager" => "Yönetici",
+                "HR" => "İnsan Kaynakları",
+                _ => "Çalışan"
+            };
+
+            var position = await _context.Positions.FirstOrDefaultAsync(p => p.Title == positionTitle);
             if (position == null)
             {
-                position = new Position { Title = "Çalışan" };
+                position = new Position { Title = positionTitle };
                 _context.Positions.Add(position);
             }
 

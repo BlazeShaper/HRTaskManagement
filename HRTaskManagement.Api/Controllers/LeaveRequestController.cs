@@ -49,7 +49,7 @@ namespace HRTaskManagement.Api.Controllers
         }
 
         [HttpPatch("{id:guid}/approve")]
-        [Authorize(Policy = "RequireManagerOrAbove")]
+        [Authorize(Policy = "RequireManagerOrHROrAbove")]
         public async Task<IActionResult> Approve(Guid id)
         {
             var userId = _currentUserService.UserId
@@ -59,7 +59,7 @@ namespace HRTaskManagement.Api.Controllers
         }
 
         [HttpPatch("{id:guid}/reject")]
-        [Authorize(Policy = "RequireManagerOrAbove")]
+        [Authorize(Policy = "RequireManagerOrHROrAbove")]
         public async Task<IActionResult> Reject(Guid id)
         {
             var userId = _currentUserService.UserId

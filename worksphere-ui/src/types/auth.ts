@@ -12,13 +12,13 @@ export interface LoginRequest {
 
 export interface LoginResponse {
     accessToken: string
-    refreshToken: string
 }
 
 export interface DecodedToken {
     sub: string
     unique_name: string
-    role: string | string[]
+    role?: string | string[]
+    'http://schemas.microsoft.com/ws/2008/06/identity/claims/role'?: string | string[]
     exp: number
 }
 

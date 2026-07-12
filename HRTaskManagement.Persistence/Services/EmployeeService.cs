@@ -38,6 +38,7 @@ namespace HRTaskManagement.Persistence.Services
             IQueryable<Employee> query = _context.Employees
                 .Include(e => e.Department)
                 .Include(e => e.Position)
+                .Include(e => e.User)
                 .Where(e => !e.IsDeleted);
 
             // 2. Dinamik Arama — Ad, Soyad veya Email içinde ara
@@ -115,14 +116,14 @@ namespace HRTaskManagement.Persistence.Services
             if (position == null)
                 throw new KeyNotFoundException("Belirtilen pozisyon bulunamadı.");
 
-            if (await _context.Employees.AnyAsync(e => e.Email == createEmployeeDto.Email))
+            if (await _context.Employees.AnyAsync(e => e.Email == createEmployeeDto.Email && !e.IsDeleted))
                 throw new InvalidOperationException("Bu e-posta adresine sahip bir çalışan zaten mevcut.");
 
             var baseUsername = createEmployeeDto.Email.Split('@')[0].ToLower();
             var username = baseUsername;
             int counter = 1;
 
-            while (await _context.Users.AnyAsync(u => u.Username == username))
+            while (await _context.Users.AnyAsync(u => u.Username == username && !u.IsDeleted))
             {
                 username = $"{baseUsername}{counter++}";
             }
@@ -181,7 +182,7 @@ namespace HRTaskManagement.Persistence.Services
                 throw new KeyNotFoundException("Belirtilen pozisyon bulunamadı.");
 
             if (employee.Email != updateEmployeeDto.Email &&
-                await _context.Employees.AnyAsync(e => e.Email == updateEmployeeDto.Email))
+                await _context.Employees.AnyAsync(e => e.Email == updateEmployeeDto.Email && !e.IsDeleted))
                 throw new InvalidOperationException("Bu e-posta adresi başka bir çalışan tarafından kullanılıyor.");
 
             _mapper.Map(updateEmployeeDto, employee);
@@ -204,11 +205,14 @@ namespace HRTaskManagement.Persistence.Services
             employee.IsDeleted = true;
             employee.IsActive = false;
             employee.UpdatedDate = DateTime.UtcNow;
+            employee.Email = $"{employee.Email}__deleted__{DateTime.UtcNow.Ticks}";
 
             if (employee.User != null)
             {
                 employee.User.IsActive = false;
+                employee.User.IsDeleted = true;
                 employee.User.UpdatedDate = DateTime.UtcNow;
+                employee.User.Username = $"{employee.User.Username}__deleted__{DateTime.UtcNow.Ticks}";
             }
 
             await _context.SaveChangesAsync();

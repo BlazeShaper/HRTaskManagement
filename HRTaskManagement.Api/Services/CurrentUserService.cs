@@ -21,8 +21,10 @@ namespace HRTaskManagement.Api.Services
         {
             get
             {
-                var userIdClaim = _httpContextAccessor.HttpContext?.User
-                    .FindFirst(System.IdentityModel.Tokens.Jwt.JwtRegisteredClaimNames.Sub);
+                var userIdClaim = _httpContextAccessor.HttpContext?.User?
+                    .FindFirst(System.IdentityModel.Tokens.Jwt.JwtRegisteredClaimNames.Sub)
+                    ?? _httpContextAccessor.HttpContext?.User?
+                    .FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier);
 
                 if (userIdClaim == null || !Guid.TryParse(userIdClaim.Value, out var userId))
                     return null;

@@ -63,9 +63,7 @@ builder.Services.AddCors(options =>
               .AllowCredentials();
     });
 });
-// Api/Program.cs
-options.AddPolicy("AdminOrHR", policy =>
-    policy.RequireRole(SystemRoles.Admin, SystemRoles.HR));
+
 // ============================================
 // JWT Authentication Konfigürasyonu
 // ============================================
@@ -103,6 +101,10 @@ builder.Services.AddAuthorization(options =>
     options.AddPolicy("RequireManagerOrAbove", policy =>
         policy.RequireClaim(ClaimTypes.Role, SystemRoles.Admin, SystemRoles.Manager));
 
+    // Admin, Manager veya HR rolüne sahip olanlar
+    options.AddPolicy("RequireManagerOrHROrAbove", policy =>
+        policy.RequireClaim(ClaimTypes.Role, SystemRoles.Admin, SystemRoles.Manager, SystemRoles.HR));
+
     // HR rolüne sahip olanlar
     options.AddPolicy("RequireHR", policy =>
         policy.RequireClaim(ClaimTypes.Role, SystemRoles.HR, SystemRoles.Admin));
@@ -110,6 +112,10 @@ builder.Services.AddAuthorization(options =>
     // Sisteme giriş yapmış herkes (rol farketmeksizin)
     options.AddPolicy("RequireAuthenticatedUser", policy =>
         policy.RequireAuthenticatedUser());
+
+    // Api/Program.cs
+    options.AddPolicy("AdminOrHR", policy =>
+        policy.RequireRole(SystemRoles.Admin, SystemRoles.HR));
 });
 
 var app = builder.Build();
@@ -119,6 +125,93 @@ using (var scope = app.Services.CreateScope())
 {
     var dbContext = scope.ServiceProvider.GetRequiredService<WorkSphereDbContext>();
     await RoleSeeder.SeedAsync(dbContext);
+
+    // Clean up existing inconsistent soft-deleted user/employee records
+    var inconsistentUsers = await dbContext.Users
+        .Include(u => u.Employee)
+        .Where(u => !u.IsDeleted && u.Employee != null && u.Employee.IsDeleted)
+        .ToListAsync();
+
+    foreach (var user in inconsistentUsers)
+    {
+        user.IsDeleted = true;
+        user.IsActive = false;
+        if (!user.Username.Contains("__deleted__"))
+        {
+            user.Username = $"{user.Username}__deleted__{DateTime.UtcNow.Ticks}";
+        }
+    }
+
+    var inconsistentEmployees = await dbContext.Employees
+        .Where(e => e.IsDeleted && !e.Email.Contains("__deleted__"))
+        .ToListAsync();
+
+    foreach (var employee in inconsistentEmployees)
+    {
+        employee.Email = $"{employee.Email}__deleted__{DateTime.UtcNow.Ticks}";
+    }
+
+    if (inconsistentUsers.Any() || inconsistentEmployees.Any())
+    {
+        await dbContext.SaveChangesAsync();
+    }
+
+    // Ensure system default positions exist
+    var adminPos = await dbContext.Positions.FirstOrDefaultAsync(p => p.Title == "Admin");
+    if (adminPos == null)
+    {
+        adminPos = new Position { Title = "Admin" };
+        dbContext.Positions.Add(adminPos);
+    }
+
+    var managerPos = await dbContext.Positions.FirstOrDefaultAsync(p => p.Title == "Yönetici");
+    if (managerPos == null)
+    {
+        managerPos = new Position { Title = "Yönetici" };
+        dbContext.Positions.Add(managerPos);
+    }
+
+    var hrPos = await dbContext.Positions.FirstOrDefaultAsync(p => p.Title == "İnsan Kaynakları");
+    if (hrPos == null)
+    {
+        hrPos = new Position { Title = "İnsan Kaynakları" };
+        dbContext.Positions.Add(hrPos);
+    }
+    await dbContext.SaveChangesAsync();
+
+    // Fix existing employees' positions to match their primary user roles
+    var employeesWithWrongPositions = await dbContext.Employees
+        .Include(e => e.User)
+            .ThenInclude(u => u.UserRoles)
+                .ThenInclude(ur => ur.Role)
+        .Include(e => e.Position)
+        .Where(e => !e.IsDeleted && e.User != null)
+        .ToListAsync();
+
+    bool needsSave = false;
+    foreach (var emp in employeesWithWrongPositions)
+    {
+        var primaryRole = emp.User.UserRoles.FirstOrDefault()?.Role?.Name;
+        if (primaryRole == "Manager" && emp.Position.Title != "Yönetici")
+        {
+            emp.PositionId = managerPos.Id;
+            needsSave = true;
+        }
+        else if (primaryRole == "Admin" && emp.Position.Title != "Admin")
+        {
+            emp.PositionId = adminPos.Id;
+            needsSave = true;
+        }
+        else if (primaryRole == "HR" && emp.Position.Title != "İnsan Kaynakları")
+        {
+            emp.PositionId = hrPos.Id;
+            needsSave = true;
+        }
+    }
+    if (needsSave)
+    {
+        await dbContext.SaveChangesAsync();
+    }
 }
 
 // Configure the HTTP request pipeline.

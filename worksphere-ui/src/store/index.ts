@@ -4,6 +4,7 @@ import uiReducer from './slices/uiSlice'
 import authReducer from './slices/authSlice'
 import employeeReducer from './slices/employeeSlice'
 import taskReducer from './slices/taskSlice'
+import leaveRequestReducer from './slices/leaveRequestSlice'
 
 export const store = configureStore({
     reducer: {
@@ -11,6 +12,7 @@ export const store = configureStore({
         auth: authReducer,
         employee: employeeReducer,
         task: taskReducer,
+        leaveRequest: leaveRequestReducer,
     },
 })
 

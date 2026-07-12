@@ -12,6 +12,7 @@ export interface EmployeeDto {
     departmentName: string
     positionId: string
     positionTitle: string
+    username: string
 }
 
 export interface EmployeeQueryParameters {

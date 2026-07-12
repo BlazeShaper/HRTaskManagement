@@ -28,7 +28,14 @@ namespace HRTaskManagement.Api.Controllers
             if (result == null)
                 return Unauthorized(new { message = "Kullanıcı adı veya şifre hatalı." });
 
-            return Ok(result);
+            SetRefreshTokenCookie(result.RefreshToken);
+
+            return Ok(new
+            {
+                result.AccessToken,
+                result.AccessTokenExpiration,
+                result.Username
+            });
         }
 
         [HttpPost("register")]
@@ -37,21 +44,49 @@ namespace HRTaskManagement.Api.Controllers
             var result = await _authService.RegisterAsync(request);
             return CreatedAtAction(nameof(Register), new { id = result.UserId }, result);
         }
+
         [HttpPost("refresh")]
         [AllowAnonymous]
-        public async Task<IActionResult> Refresh([FromBody] RefreshTokenRequestDto request)
+        public async Task<IActionResult> Refresh()
         {
-            var result = await _authService.RefreshTokenAsync(request.RefreshToken);
-            return Ok(result);
+            var refreshToken = Request.Cookies["refreshToken"];
+
+            if (string.IsNullOrEmpty(refreshToken))
+                return Unauthorized(new { message = "Refresh token bulunamadı." });
+
+            var result = await _authService.RefreshTokenAsync(refreshToken);
+
+            SetRefreshTokenCookie(result.RefreshToken);
+
+            return Ok(new
+            {
+                result.AccessToken,
+                result.AccessTokenExpiration,
+                result.Username
+            });
         }
 
         [HttpPost("logout")]
         [AllowAnonymous]
-        public async Task<IActionResult> Logout([FromBody] RefreshTokenRequestDto request)
+        public async Task<IActionResult> Logout()
         {
-            await _authService.RevokeTokenAsync(request.RefreshToken);
+            var refreshToken = Request.Cookies["refreshToken"];
+
+            if (!string.IsNullOrEmpty(refreshToken))
+            {
+                await _authService.RevokeTokenAsync(refreshToken);
+            }
+
+            Response.Cookies.Delete("refreshToken", new CookieOptions
+            {
+                Path = "/",
+                Secure = true,
+                SameSite = SameSiteMode.Strict
+            });
+
             return NoContent();
         }
+
         [HttpPost("change-password")]
         [Authorize]
         [AllowPasswordChange]
@@ -61,6 +96,20 @@ namespace HRTaskManagement.Api.Controllers
                 ?? throw new UnauthorizedAccessException("Kullanıcı kimliği bulunamadı.");
             await _authService.ChangePasswordAsync(userId, dto);
             return NoContent();
+        }
+
+        private void SetRefreshTokenCookie(string token)
+        {
+            var cookieOptions = new CookieOptions
+            {
+                HttpOnly = true,
+                Secure = true,
+                SameSite = SameSiteMode.Strict,
+                Expires = DateTimeOffset.UtcNow.AddDays(7),
+                Path = "/"
+            };
+
+            Response.Cookies.Append("refreshToken", token, cookieOptions);
         }
     }
 }

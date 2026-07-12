@@ -1,11 +1,12 @@
 // src/api/axiosInstance.ts
-import axios from 'axios'
+import axios, { type AxiosError, type InternalAxiosRequestConfig } from 'axios'
 
 const axiosInstance = axios.create({
     baseURL: import.meta.env.VITE_API_BASE_URL,
     headers: {
         'Content-Type': 'application/json',
     },
+    withCredentials: true,
 })
 
 axiosInstance.interceptors.request.use(
@@ -23,14 +24,71 @@ axiosInstance.interceptors.request.use(
     }
 )
 
+// --- 401 Retry with Refresh Token ---
+
+let _isRefreshing = false
+let _failedQueue: {
+    resolve: (token: string) => void
+    reject: (error: unknown) => void
+}[] = []
+
+function processQueue(error: unknown, token: string | null) {
+    _failedQueue.forEach(({ resolve, reject }) => {
+        if (token) {
+            resolve(token)
+        } else {
+            reject(error)
+        }
+    })
+    _failedQueue = []
+}
+
 axiosInstance.interceptors.response.use(
     (response) => response,
-    (error) => {
-        if (error.response?.status === 401) {
-            localStorage.removeItem('accessToken')
-            localStorage.removeItem('refreshToken')
+    async (error: AxiosError) => {
+        const originalRequest = error.config as InternalAxiosRequestConfig & { _retry?: boolean }
 
-            window.location.href = '/login'
+        // If the failed request is the refresh call itself, don't retry
+        if (
+            error.response?.status === 401 &&
+            originalRequest &&
+            !originalRequest._retry &&
+            !originalRequest.url?.includes('/auth/refresh')
+        ) {
+            if (_isRefreshing) {
+                // Another refresh is in progress — queue this request
+                return new Promise<string>((resolve, reject) => {
+                    _failedQueue.push({ resolve, reject })
+                }).then((newToken) => {
+                    originalRequest.headers.Authorization = `Bearer ${newToken}`
+                    return axiosInstance(originalRequest)
+                })
+            }
+
+            originalRequest._retry = true
+            _isRefreshing = true
+
+            try {
+                // Import dynamically to avoid circular dependency
+                const { refreshTokenRequest } = await import('./authApi')
+                const data = await refreshTokenRequest()
+
+                localStorage.setItem('accessToken', data.accessToken)
+                originalRequest.headers.Authorization = `Bearer ${data.accessToken}`
+
+                processQueue(null, data.accessToken)
+
+                return axiosInstance(originalRequest)
+            } catch (refreshError) {
+                processQueue(refreshError, null)
+
+                localStorage.removeItem('accessToken')
+                window.location.href = '/login'
+
+                return Promise.reject(refreshError)
+            } finally {
+                _isRefreshing = false
+            }
         }
 
         return Promise.reject(error)

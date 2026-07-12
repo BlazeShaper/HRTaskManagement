@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Bell, ChevronDown, LogOut, User } from 'lucide-react'
 import { useAppSelector, useAppDispatch } from '../../store/hooks'
-import { logout } from '../../store/slices/authSlice'
+import { logoutUser } from '../../store/slices/authSlice'
 
 export default function Navbar() {
     const user = useAppSelector((state) => state.auth.user)
@@ -46,7 +46,7 @@ export default function Navbar() {
                                 Profilim
                             </button>
                             <button
-                                onClick={() => dispatch(logout())}
+                                onClick={() => dispatch(logoutUser())}
                                 className="flex w-full items-center gap-2 px-4 py-2 text-sm text-red-400 hover:bg-slate-800"
                             >
                                 <LogOut size={16} />
