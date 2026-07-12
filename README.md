@@ -1,4 +1,3 @@
-
 # WorkSphere — HR & Task Management System
 
 <p align="center">
@@ -158,18 +157,15 @@ components/features/      → Domain'e özel modal/form bileşenleri
 
 ## 📸 Ekran Görüntüleri
 
-> Aşağıdaki alanlara ilgili ekran görüntülerini ekleyebilirsiniz.
-
 <table>
   <tr>
-    <td align="center"><b>Giriş Ekranı</b><br/><img src="docs/screenshots/login.png" width="380" alt="Login ekranı" /></td>
-    <td align="center"><b>Dashboard</b><br/><img src="docs/screenshots/dashboard.png" width="380" alt="Dashboard" /></td>
-  </tr>
-  <tr>
-    <td align="center"><b>Çalışan Listesi</b><br/><img src="docs/screenshots/employees.png" width="380" alt="Çalışan listesi" /></td>
-    <td align="center"><b>Görev Yönetimi</b><br/><img src="docs/screenshots/tasks.png" width="380" alt="Görev listesi" /></td>
+    <td align="center" width="33%"><b>Giriş Ekranı</b><br/><img src="https://github.com/user-attachments/assets/9dd8aee9-404f-4422-a3a9-88ca4d3755e8" width="100%" alt="Login ekranı" /></td>
+    <td align="center" width="33%"><b>Dashboard / Panel</b><br/><img src="https://github.com/user-attachments/assets/ca40d629-cb42-4906-bcb9-df1d149dfc10" width="100%" alt="Dashboard" /></td>
+    <td align="center" width="33%"><b>İzin Yönetimi</b><br/><img src="https://github.com/user-attachments/assets/024702c6-a677-4c8c-85aa-0d30a310efb7" width="100%" alt="İzin yönetimi ekranı" /></td>
   </tr>
 </table>
+
+> Koyu tema (dark mode), Tailwind CSS ile tasarlandı. Sol tarafta sabit Sidebar, üstte profil/bildirim alanını içeren Navbar, ortada dinamik içerik alanı bulunan bir dashboard layout kullanılıyor.
 
 ---
 
@@ -409,9 +405,3 @@ VITE_API_BASE_URL=http://localhost:5048/api
 <p align="center">
   <sub>Bu proje, Clean Architecture, JWT tabanlı güvenli kimlik doğrulama ve modern React/Redux pratiklerini bir araya getiren bir staj/öğrenme projesidir.</sub>
 </p>
-
-
-
-<img width="1920" height="874" alt="login" src="https://github.com/user-attachments/assets/9dd8aee9-404f-4422-a3a9-88ca4d3755e8" />
-<img width="1919" height="920" alt="dashboard" src="https://github.com/user-attachments/assets/ca40d629-cb42-4906-bcb9-df1d149dfc10" />
-<img width="1920" height="870" alt="leave-requests" src="https://github.com/user-attachments/assets/024702c6-a677-4c8c-85aa-0d30a310efb7" />
