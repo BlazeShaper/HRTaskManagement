@@ -1,3 +1,9 @@
+<img width="1920" height="874" alt="login" src="https://github.com/user-attachments/assets/9f53c800-b8a8-4cd8-ad58-3f8351f862d1" />
+<img width="1919" height="920" alt="dashboard" src="https://github.com/user-attachments/assets/aaf75317-43dc-4127-81cc-3c8f16e10bbb" />
+<img width="1920" height="870" alt="leave-requests" src="https://github.com/user-attachments/assets/fa4fb335-1af2-4b00-8877-6e18b46dc1b7" />
+<img width="1920" height="874" alt="login" src="https://github.com/user-attachments/assets/9dd8aee9-404f-4422-a3a9-88ca4d3755e8" />
+<img width="1919" height="920" alt="dashboard" src="https://github.com/user-attachments/assets/ca40d629-cb42-4906-bcb9-df1d149dfc10" />
+<img width="1920" height="870" alt="leave-requests" src="https://github.com/user-attachments/assets/024702c6-a677-4c8c-85aa-0d30a310efb7" />
 # WorkSphere — HR & Task Management System
 
 <p align="center">
