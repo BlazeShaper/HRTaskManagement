@@ -1,7 +1,4 @@
 // Persistence/Services/AssetService.cs
-using System;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using HRTaskManagement.Application.DTOs.Asset;
 using HRTaskManagement.Application.DTOs.Common;

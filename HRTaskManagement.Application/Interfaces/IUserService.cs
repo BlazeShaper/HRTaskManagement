@@ -1,6 +1,4 @@
 // Application/Interfaces/IUserService.cs
-using System;
-using System.Threading.Tasks;
 using HRTaskManagement.Application.DTOs.User;
 
 namespace HRTaskManagement.Application.Interfaces

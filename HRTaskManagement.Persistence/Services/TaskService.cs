@@ -1,14 +1,9 @@
 // Persistence/Services/TaskService.cs
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using HRTaskManagement.Application.DTOs.Common;
 using HRTaskManagement.Application.DTOs.Task;
 using HRTaskManagement.Application.DTOs.Notification;
 using HRTaskManagement.Application.Interfaces;
-using HRTaskManagement.Domain.Enums;
 using HRTaskManagement.Persistence.Context;
 using HRTaskManagement.Shared.Constants;
 using TaskItemEntity = HRTaskManagement.Domain.Entities.TaskItem;

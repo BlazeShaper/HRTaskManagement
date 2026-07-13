@@ -1,6 +1,4 @@
 // Application/DTOs/Employee/CreateEmployeeDto.cs
-using System;
-
 namespace HRTaskManagement.Application.DTOs.Employee
 {
     public class CreateEmployeeDto

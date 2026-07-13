@@ -1,8 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.Extensions.Configuration;
-using System;
-using System.IO;
 
 namespace HRTaskManagement.Persistence.Context
 {
@@ -42,7 +40,6 @@ namespace HRTaskManagement.Persistence.Context
 
             var optionsBuilder = new DbContextOptionsBuilder<WorkSphereDbContext>();
             optionsBuilder.UseSqlServer(connectionString);
-            Console.WriteLine($"[DEBUG] Kullanılan connection string: {connectionString}");
             return new WorkSphereDbContext(optionsBuilder.Options);
         }
     }

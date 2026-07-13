@@ -1,8 +1,4 @@
 // Persistence/Services/UserService.cs
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using HRTaskManagement.Application.DTOs.User;
 using HRTaskManagement.Application.Interfaces;

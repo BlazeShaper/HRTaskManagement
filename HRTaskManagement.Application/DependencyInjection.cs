@@ -1,6 +1,5 @@
 // HRTaskManagement.Application/DependencyInjection.cs
 using Microsoft.Extensions.DependencyInjection;
-using AutoMapper;
 using System.Reflection;
 
 namespace HRTaskManagement.Application

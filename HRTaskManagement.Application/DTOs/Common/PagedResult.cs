@@ -1,6 +1,4 @@
 // Application/DTOs/Common/PagedResult.cs
-using System.Collections.Generic;
-
 namespace HRTaskManagement.Application.DTOs.Common
 {
     public class PagedResult<T>

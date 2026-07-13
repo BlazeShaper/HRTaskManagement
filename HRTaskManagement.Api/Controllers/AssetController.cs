@@ -1,6 +1,4 @@
 // Api/Controllers/AssetController.cs
-using System;
-using System.Threading.Tasks;
 using HRTaskManagement.Application.DTOs.Asset;
 using HRTaskManagement.Application.Interfaces;
 using Microsoft.AspNetCore.Authorization;

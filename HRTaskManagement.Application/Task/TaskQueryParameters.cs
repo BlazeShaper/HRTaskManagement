@@ -1,5 +1,3 @@
-using System;
-
 namespace HRTaskManagement.Application.DTOs.Task
 {
     public class TaskQueryParameters

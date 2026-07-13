@@ -1,6 +1,4 @@
 // Api/Controllers/LeaveRequestController.cs
-using System;
-using System.Threading.Tasks;
 using HRTaskManagement.Application.DTOs.LeaveRequest;
 using HRTaskManagement.Application.Interfaces;
 using Microsoft.AspNetCore.Authorization;

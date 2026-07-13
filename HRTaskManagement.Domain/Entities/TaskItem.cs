@@ -1,7 +1,5 @@
 // Entities/TaskItem.cs
-using System.Collections.Generic;
 using HRTaskManagement.Domain.Common;
-using HRTaskManagement.Domain.Enums;
 
 namespace HRTaskManagement.Domain.Entities
 {

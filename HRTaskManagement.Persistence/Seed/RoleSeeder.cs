@@ -1,6 +1,4 @@
 // Persistence/Seed/RoleSeeder.cs
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using HRTaskManagement.Domain.Entities;
 using HRTaskManagement.Persistence.Context;

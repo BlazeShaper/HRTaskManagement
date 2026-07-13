@@ -1,6 +1,4 @@
 // Application/DTOs/Task/CreateTaskDto.cs
-using System;
-
 namespace HRTaskManagement.Application.DTOs.Task
 {
     public class CreateTaskDto

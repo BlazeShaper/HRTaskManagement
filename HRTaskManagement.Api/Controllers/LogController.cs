@@ -1,6 +1,4 @@
 // Api/Controllers/LogController.cs
-using System;
-using System.Threading.Tasks;
 using HRTaskManagement.Application.DTOs.Log;
 using HRTaskManagement.Application.Interfaces;
 using Microsoft.AspNetCore.Authorization;

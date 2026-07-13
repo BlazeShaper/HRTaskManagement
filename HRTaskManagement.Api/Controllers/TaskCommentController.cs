@@ -1,6 +1,4 @@
 // Api/Controllers/TaskCommentController.cs
-using System;
-using System.Threading.Tasks;
 using HRTaskManagement.Application.DTOs.TaskComment;
 using HRTaskManagement.Application.Interfaces;
 using HRTaskManagement.Shared.Constants;

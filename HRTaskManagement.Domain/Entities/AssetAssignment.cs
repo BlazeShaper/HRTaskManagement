@@ -1,4 +1,3 @@
-using System;
 using HRTaskManagement.Domain.Common;
 
 namespace HRTaskManagement.Domain.Entities

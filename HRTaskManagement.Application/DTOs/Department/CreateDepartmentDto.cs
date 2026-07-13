@@ -1,6 +1,4 @@
 // Application/DTOs/Department/CreateDepartmentDto.cs
-using System;
-
 namespace HRTaskManagement.Application.DTOs.Department
 {
     public class CreateDepartmentDto

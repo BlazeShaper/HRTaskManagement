@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using HRTaskManagement.Domain.Common;
 
 namespace HRTaskManagement.Domain.Entities

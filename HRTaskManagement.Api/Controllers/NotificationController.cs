@@ -1,6 +1,4 @@
 // Api/Controllers/NotificationController.cs
-using System;
-using System.Threading.Tasks;
 using HRTaskManagement.Application.DTOs.Notification;
 using HRTaskManagement.Application.Interfaces;
 using Microsoft.AspNetCore.Authorization;

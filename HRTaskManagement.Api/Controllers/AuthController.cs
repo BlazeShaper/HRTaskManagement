@@ -1,6 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
-using System.Threading.Tasks;
 using HRTaskManagement.Application.DTOs.Auth;
 using HRTaskManagement.Application.Interfaces;
 using HRTaskManagement.Api.Attributes;
@@ -20,6 +19,13 @@ namespace HRTaskManagement.Api.Controllers
             _currentUserService = currentUserService;
         }
 
+        /// <summary>
+        /// Kullanıcı girişi yapar ve JWT erişim token'ı ile yenileme (refresh) token'ını döner.
+        /// </summary>
+        /// <param name="request">Kullanıcı adı ve şifreyi içeren giriş talebi.</param>
+        /// <returns>Erişim token'ı, sona erme tarihi ve kullanıcı adı.</returns>
+        /// <response code="200">Giriş başarılı ve token'lar oluşturuldu.</response>
+        /// <response code="401">Kullanıcı adı veya şifre hatalı.</response>
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginRequestDto request)
         {
@@ -38,6 +44,12 @@ namespace HRTaskManagement.Api.Controllers
             });
         }
 
+        /// <summary>
+        /// Yeni bir kullanıcı hesabı kaydeder.
+        /// </summary>
+        /// <param name="request">Kaydedilecek kullanıcının bilgileri.</param>
+        /// <returns>Yeni oluşturulan kullanıcı kaydı bilgileri.</returns>
+        /// <response code="201">Kayıt başarıyla oluşturuldu.</response>
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] RegisterRequestDto request)
         {
@@ -45,6 +57,12 @@ namespace HRTaskManagement.Api.Controllers
             return CreatedAtAction(nameof(Register), new { id = result.UserId }, result);
         }
 
+        /// <summary>
+        /// Yenileme token'ı (refresh token) aracılığıyla yeni bir erişim token'ı talep eder.
+        /// </summary>
+        /// <returns>Yeni erişim token'ı ve sona erme tarihi.</returns>
+        /// <response code="200">Yeni erişim token'ı başarıyla üretildi.</response>
+        /// <response code="401">Geçerli bir yenileme token'ı bulunamadı veya yetkisiz işlem.</response>
         [HttpPost("refresh")]
         [AllowAnonymous]
         public async Task<IActionResult> Refresh()
@@ -66,6 +84,11 @@ namespace HRTaskManagement.Api.Controllers
             });
         }
 
+        /// <summary>
+        /// Kullanıcının oturumunu sonlandırır ve yenileme token'ını iptal eder.
+        /// </summary>
+        /// <returns>Boş içerik.</returns>
+        /// <response code="204">Oturum başarıyla sonlandırıldı.</response>
         [HttpPost("logout")]
         [AllowAnonymous]
         public async Task<IActionResult> Logout()
@@ -87,6 +110,13 @@ namespace HRTaskManagement.Api.Controllers
             return NoContent();
         }
 
+        /// <summary>
+        /// Giriş yapmış mevcut kullanıcının şifresini değiştirir.
+        /// </summary>
+        /// <param name="dto">Eski ve yeni şifre bilgilerini içeren veri nesnesi.</param>
+        /// <returns>Boş içerik.</returns>
+        /// <response code="204">Şifre başarıyla güncellendi.</response>
+        /// <response code="401">Kullanıcı oturumu açılmamış veya yetkisiz erişim.</response>
         [HttpPost("change-password")]
         [Authorize]
         [AllowPasswordChange]

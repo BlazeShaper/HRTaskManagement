@@ -1,6 +1,4 @@
 // Application/DTOs/Auth/RegisterResponseDto.cs
-using System;
-
 namespace HRTaskManagement.Application.DTOs.Auth
 {
     public class RegisterResponseDto

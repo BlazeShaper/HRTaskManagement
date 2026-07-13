@@ -1,7 +1,4 @@
 // Application/Interfaces/IEmployeeService.cs
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using HRTaskManagement.Application.DTOs.Common;
 using HRTaskManagement.Application.DTOs.Employee;
 

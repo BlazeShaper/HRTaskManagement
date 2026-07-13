@@ -1,6 +1,4 @@
 // Application/DTOs/Task/UpdateTaskDto.cs
-using System;
-
 namespace HRTaskManagement.Application.DTOs.Task
 {
     public class UpdateTaskDto

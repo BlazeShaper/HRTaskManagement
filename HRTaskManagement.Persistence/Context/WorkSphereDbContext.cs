@@ -1,10 +1,5 @@
 using Microsoft.EntityFrameworkCore;
 using HRTaskManagement.Domain.Entities;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using HRTaskManagement.Application.Interfaces;
 using HRTaskManagement.Domain.Common;
 

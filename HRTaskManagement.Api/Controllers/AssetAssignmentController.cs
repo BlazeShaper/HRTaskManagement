@@ -1,6 +1,4 @@
 // Api/Controllers/AssetAssignmentController.cs
-using System;
-using System.Threading.Tasks;
 using HRTaskManagement.Application.DTOs.AssetAssignment;
 using HRTaskManagement.Application.Interfaces;
 using Microsoft.AspNetCore.Authorization;

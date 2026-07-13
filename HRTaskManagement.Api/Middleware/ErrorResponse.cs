@@ -1,6 +1,4 @@
 // Api/Middleware/ErrorResponse.cs
-using System.Collections.Generic;
-
 namespace HRTaskManagement.Api.Middleware
 {
     public class ErrorResponse

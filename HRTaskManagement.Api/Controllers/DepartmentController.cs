@@ -1,7 +1,5 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System;
-using System.Threading.Tasks;
 using HRTaskManagement.Application.DTOs.Department;
 using HRTaskManagement.Application.Interfaces;
 
