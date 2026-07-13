@@ -35,8 +35,9 @@ export const createPosition = createAsyncThunk(
   async (dto: CreatePositionDto, { rejectWithValue }) => {
     try {
       return await createPositionRequest(dto)
-    } catch (error: any) {
-      return rejectWithValue(error.response?.data?.message || 'Pozisyon oluşturulurken bir hata oluştu.')
+    } catch (error) {
+      const err = error as { response?: { data?: { message?: string } } }
+      return rejectWithValue(err.response?.data?.message || 'Pozisyon oluşturulurken bir hata oluştu.')
     }
   }
 )

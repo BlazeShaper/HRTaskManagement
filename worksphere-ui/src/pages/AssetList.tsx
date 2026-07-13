@@ -79,8 +79,9 @@ export default function AssetList() {
       } else {
         alert(result.payload || 'İade işlemi başarısız oldu.')
       }
-    } catch (err: any) {
-      alert(err || 'Zimmet kaydı bulunamadı veya iade işlemi sırasında bir hata oluştu.')
+    } catch (err) {
+      const errMsg = err instanceof Error ? err.message : String(err)
+      alert(errMsg || 'Zimmet kaydı bulunamadı veya iade işlemi sırasında bir hata oluştu.')
     } finally {
       setReturningAssetId(null)
     }
@@ -159,6 +160,7 @@ export default function AssetList() {
       </div>
 
       <AssignAssetModal
+        key={assigningAsset?.id || 'none'}
         asset={assigningAsset}
         onClose={() => setAssigningAsset(null)}
         onAssigned={handleAssigned}

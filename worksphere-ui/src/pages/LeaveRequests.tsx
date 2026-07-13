@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAppDispatch, useAppSelector } from '../store/hooks'
 import { fetchLeaveRequests, approveLeaveRequest, rejectLeaveRequest } from '../store/slices/leaveRequestSlice'
@@ -44,17 +44,17 @@ export default function LeaveRequests() {
         dispatch(fetchEmployees({ pageSize: 100 }))
     }, [dispatch])
 
-    const loadData = () => {
+    const loadData = useCallback(() => {
         if (activeTab === 'my-leaves' && currentEmployee) {
             dispatch(fetchLeaveRequests({ employeeId: currentEmployee.id, pageSize: 50 }))
         } else if (activeTab === 'approvals' && isManagerOrHR) {
             dispatch(fetchLeaveRequests({ status: 'Pending', pageSize: 50 }))
         }
-    }
+    }, [dispatch, activeTab, currentEmployee, isManagerOrHR])
 
     useEffect(() => {
         loadData()
-    }, [dispatch, activeTab, currentEmployee, isManagerOrHR])
+    }, [loadData])
 
     const handleApprove = async (id: string) => {
         setActionId(id)

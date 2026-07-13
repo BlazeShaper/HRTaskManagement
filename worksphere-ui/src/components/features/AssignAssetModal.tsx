@@ -24,8 +24,6 @@ export default function AssignAssetModal({ asset, onClose, onAssigned }: AssignA
     useEffect(() => {
         if (asset) {
             dispatch(fetchEmployees({ isActive: true }))
-            setEmployeeId('')
-            setNote('')
             dispatch(resetAssignStatus())
         }
     }, [asset, dispatch])

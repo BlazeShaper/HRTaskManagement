@@ -20,9 +20,10 @@ export const assignAsset = createAsyncThunk(
     async (dto: CreateAssetAssignmentDto, { rejectWithValue }) => {
         try {
             return await assignAssetRequest(dto)
-        } catch (error: any) {
+        } catch (error) {
+            const err = error as { response?: { data?: { message?: string } } }
             return rejectWithValue(
-                error.response?.data?.message || 'Demirbaş zimmetlenirken bir hata oluştu.'
+                err.response?.data?.message || 'Demirbaş zimmetlenirken bir hata oluştu.'
             )
         }
     }
@@ -33,9 +34,10 @@ export const returnAsset = createAsyncThunk(
     async ({ assignmentId, dto }: { assignmentId: string; dto: ReturnAssetDto }, { rejectWithValue }) => {
         try {
             return await returnAssetRequest(assignmentId, dto)
-        } catch (error: any) {
+        } catch (error) {
+            const err = error as { response?: { data?: { message?: string } } }
             return rejectWithValue(
-                error.response?.data?.message || 'Demirbaş iade edilirken bir hata oluştu.'
+                err.response?.data?.message || 'Demirbaş iade edilirken bir hata oluştu.'
             )
         }
     }
@@ -51,9 +53,10 @@ export const fetchActiveAssignmentByAssetId = createAsyncThunk(
                 return rejectWithValue('Aktif zimmet kaydı bulunamadı.')
             }
             return activeAssignment
-        } catch (error: any) {
+        } catch (error) {
+            const err = error as { response?: { data?: { message?: string } } }
             return rejectWithValue(
-                error.response?.data?.message || 'Aktif zimmet kaydı sorgulanırken bir hata oluştu.'
+                err.response?.data?.message || 'Aktif zimmet kaydı sorgulanırken bir hata oluştu.'
             )
         }
     }

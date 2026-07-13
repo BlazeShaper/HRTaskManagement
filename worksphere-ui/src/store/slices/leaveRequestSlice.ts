@@ -35,10 +35,11 @@ export const fetchLeaveRequests = createAsyncThunk(
     async (params: LeaveRequestQueryParameters, { rejectWithValue }) => {
         try {
             return await getLeaveRequestsRequest(params)
-        } catch (err: any) {
+        } catch (err) {
+            const error = err as { response?: { data?: { message?: string; Message?: string } } }
             return rejectWithValue(
-                err.response?.data?.message ||
-                err.response?.data?.Message ||
+                error.response?.data?.message ||
+                error.response?.data?.Message ||
                 'İzin talepleri yüklenirken bir hata oluştu.'
             )
         }
@@ -50,10 +51,11 @@ export const createLeaveRequest = createAsyncThunk(
     async (dto: CreateLeaveRequestDto, { rejectWithValue }) => {
         try {
             return await createLeaveRequestRequest(dto)
-        } catch (err: any) {
+        } catch (err) {
+            const error = err as { response?: { data?: { message?: string; Message?: string } } }
             return rejectWithValue(
-                err.response?.data?.message ||
-                err.response?.data?.Message ||
+                error.response?.data?.message ||
+                error.response?.data?.Message ||
                 'İzin talebi oluşturulurken bir hata oluştu.'
             )
         }
@@ -65,10 +67,11 @@ export const approveLeaveRequest = createAsyncThunk(
     async (id: string, { rejectWithValue }) => {
         try {
             return await approveLeaveRequestRequest(id)
-        } catch (err: any) {
+        } catch (err) {
+            const error = err as { response?: { data?: { message?: string; Message?: string } } }
             return rejectWithValue(
-                err.response?.data?.message ||
-                err.response?.data?.Message ||
+                error.response?.data?.message ||
+                error.response?.data?.Message ||
                 'İzin talebi onaylanırken bir hata oluştu.'
             )
         }
@@ -80,10 +83,11 @@ export const rejectLeaveRequest = createAsyncThunk(
     async (id: string, { rejectWithValue }) => {
         try {
             return await rejectLeaveRequestRequest(id)
-        } catch (err: any) {
+        } catch (err) {
+            const error = err as { response?: { data?: { message?: string; Message?: string } } }
             return rejectWithValue(
-                err.response?.data?.message ||
-                err.response?.data?.Message ||
+                error.response?.data?.message ||
+                error.response?.data?.Message ||
                 'İzin talebi reddedilirken bir hata oluştu.'
             )
         }

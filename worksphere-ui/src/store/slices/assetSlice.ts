@@ -39,9 +39,10 @@ export const createAsset = createAsyncThunk(
   async (dto: CreateAssetDto, { rejectWithValue }) => {
     try {
       return await createAssetRequest(dto)
-    } catch (error: any) {
+    } catch (error) {
+      const err = error as { response?: { data?: { message?: string } } }
       return rejectWithValue(
-        error.response?.data?.message || 'Demirbaş oluşturulurken bir hata oluştu.'
+        err.response?.data?.message || 'Demirbaş oluşturulurken bir hata oluştu.'
       )
     }
   }
